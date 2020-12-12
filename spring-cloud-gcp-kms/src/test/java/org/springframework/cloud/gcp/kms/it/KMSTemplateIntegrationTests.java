@@ -59,4 +59,21 @@ public class KMSTemplateIntegrationTests {
 		assertThat(decryptedText).isEqualTo("1234");
 	}
 
+	/**
+	 * On a fine tuned Service Account with only Encrypt/Decrypt permissions
+	 * towards a KeyRing, trying to use another KMS even on a non existent
+	 * KeyRing leads to PermissionDeniedException
+	 */
+	@Test(expected = com.google.api.gax.rpc.PermissionDeniedException.class)
+	public void testUnAuthorisedEncrypt() {
+		String kmsStr = "kms://project-name/europe-west2/does-not-exist/key-id";
+		kmsTemplate.encrypt(kmsStr,"test-NON-EXISTING-keyring");
+	}
+
+	@Test(expected = com.google.api.gax.rpc.NotFoundException.class)
+	public void testEncryptMissingKey() {
+		String kmsStr = "kms://project-name/europe-west2/spring-cloud-gcp/does-not-exist";
+		kmsTemplate.encrypt(kmsStr,"test-NON-EXISTING-key");
+	}
+
 }
