@@ -33,9 +33,7 @@ final class KMSPropertyUtils {
 	private KMSPropertyUtils() { }
 
 	static CryptoKeyName getCryptoKeyName(String input, GcpProjectIdProvider projectIdProvider) {
-		if (!input.startsWith(GCP_KMS_PREFIX)) {
-			return null;
-		}
+		assertPrefix(input);
 
 		String resourcePath = input.substring(GCP_KMS_PREFIX.length());
 		String[] tokens = resourcePath.split("/");
@@ -92,6 +90,12 @@ final class KMSPropertyUtils {
 				.setCryptoKey(keyId)
 				.setLocation(locationId)
 				.build();
+	}
+
+	private static void assertPrefix(String input) {
+		if (!input.startsWith(GCP_KMS_PREFIX)) {
+			throw new KMSException("Cryptographic key names should start with kms://");
+		}
 	}
 
 }
