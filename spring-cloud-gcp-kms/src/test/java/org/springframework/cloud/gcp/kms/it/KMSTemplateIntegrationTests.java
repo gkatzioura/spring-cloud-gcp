@@ -27,7 +27,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
-import static org.awaitility.Awaitility.await;
 
 /**
  * Integration tests for {@link KMSTemplate}.
@@ -57,6 +56,15 @@ public class KMSTemplateIntegrationTests {
 		String decryptedText = kmsTemplate.decrypt(kmsStr, encryptedText);
 
 		assertThat(decryptedText).isEqualTo("1234");
+	}
+
+	@Test(expected = com.google.api.gax.rpc.InvalidArgumentException.class)
+	public void testEncryptDecryptMissmatch() {
+		String kmsStr = "kms://project-name/europe-west2/spring-cloud-gcp/key-id";
+		String encryptedText = kmsTemplate.encrypt(kmsStr,"1234");
+
+		String kmsStr2 = "kms://project-name/europe-west2/spring-cloud-gcp/key-id-2";
+		kmsTemplate.decrypt(kmsStr2, encryptedText);
 	}
 
 	/**
