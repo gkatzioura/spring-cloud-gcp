@@ -39,7 +39,7 @@ public class KMSPropertyUtilsTests {
 	}
 
 	@Test
-	public void testInvalidSecretFormat_missingValues() {
+	public void testInvalidKMSFormat_missingValues() {
 		String cryptoKeyNameStr = "kms://";
 
 		assertThatThrownBy(() ->
@@ -49,12 +49,36 @@ public class KMSPropertyUtilsTests {
 	}
 
 	@Test
-	public void testSecretFormat_noProject() {
+	public void testKMSFormat_noProject() {
 		String cryptoKeyNameStr = "kms://europe-west2/key-ring-id/key-id";
 
 		CryptoKeyName cryptoKeyName = KMSPropertyUtils.getCryptoKeyName(cryptoKeyNameStr, DEFAULT_PROJECT_ID_PROVIDER);
 
 		assertThat(cryptoKeyName.getProject()).isEqualTo(DEFAULT_PROJECT_ID_PROVIDER.getProjectId());
+		assertThat(cryptoKeyName.getLocation()).isEqualTo("europe-west2");
+		assertThat(cryptoKeyName.getKeyRing()).isEqualTo("key-ring-id");
+		assertThat(cryptoKeyName.getCryptoKey()).isEqualTo("key-id");
+	}
+
+	@Test
+	public void testKMSFormat_lean() {
+		String cryptoKeyNameStr = "kms://test-project/europe-west2/key-ring-id/key-id";
+
+		CryptoKeyName cryptoKeyName = KMSPropertyUtils.getCryptoKeyName(cryptoKeyNameStr, DEFAULT_PROJECT_ID_PROVIDER);
+
+		assertThat(cryptoKeyName.getProject()).isEqualTo("test-project");
+		assertThat(cryptoKeyName.getLocation()).isEqualTo("europe-west2");
+		assertThat(cryptoKeyName.getKeyRing()).isEqualTo("key-ring-id");
+		assertThat(cryptoKeyName.getCryptoKey()).isEqualTo("key-id");
+	}
+
+	@Test
+	public void testKMSFormat_verbose() {
+		String cryptoKeyNameStr = "kms://projects/test-project/locations/europe-west2/keyRings/key-ring-id/cryptoKeys/key-id";
+
+		CryptoKeyName cryptoKeyName = KMSPropertyUtils.getCryptoKeyName(cryptoKeyNameStr, DEFAULT_PROJECT_ID_PROVIDER);
+
+		assertThat(cryptoKeyName.getProject()).isEqualTo("test-project");
 		assertThat(cryptoKeyName.getLocation()).isEqualTo("europe-west2");
 		assertThat(cryptoKeyName.getKeyRing()).isEqualTo("key-ring-id");
 		assertThat(cryptoKeyName.getCryptoKey()).isEqualTo("key-id");

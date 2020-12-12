@@ -58,7 +58,7 @@ final class KMSPropertyUtils {
 			keyRingId = tokens[2];
 			keyId = tokens[3];
 		}
-		else if (tokens.length == 7
+		else if (tokens.length == 8
 					&& tokens[0].equals("projects")
 					&& tokens[2].equals("locations")
 					&& tokens[4].equals("keyRings")
