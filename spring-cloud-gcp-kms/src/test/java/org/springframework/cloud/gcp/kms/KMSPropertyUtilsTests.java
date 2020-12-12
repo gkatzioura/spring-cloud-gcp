@@ -32,10 +32,10 @@ public class KMSPropertyUtilsTests {
 	@Test
 	public void testNonKms() {
 		String cryptoKeyNameStr = "spring.cloud.datasource";
-		CryptoKeyName cryptoKeyName =
-				KMSPropertyUtils.getCryptoKeyName(cryptoKeyNameStr, DEFAULT_PROJECT_ID_PROVIDER);
-
-		assertThat(cryptoKeyName).isNull();
+		assertThatThrownBy(() ->
+				KMSPropertyUtils.getCryptoKeyName(cryptoKeyNameStr, DEFAULT_PROJECT_ID_PROVIDER))
+				.isInstanceOf(KMSException.class)
+				.hasMessageContaining("Cryptographic key names should start with kms://");
 	}
 
 	@Test
