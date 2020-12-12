@@ -16,7 +16,10 @@
 
 package org.springframework.cloud.gcp.kms;
 
+import java.util.Base64;
+
 import com.google.cloud.kms.v1.CryptoKeyName;
+import com.google.cloud.kms.v1.DecryptRequest;
 import com.google.cloud.kms.v1.DecryptResponse;
 import com.google.cloud.kms.v1.EncryptRequest;
 import com.google.cloud.kms.v1.EncryptResponse;
@@ -62,13 +65,29 @@ public class KMSTemplate implements KMSOperations {
 
 		EncryptResponse response = client.encrypt(request);
 		assertCrcMatch(response);
-		return response.getCiphertext().toStringUtf8();
+
+		return encodeBase64(response);
 	}
 
 	public String decrypt(String cryptoKey, String encryptedText) {
 		CryptoKeyName cryptoKeyName = KMSPropertyUtils.getCryptoKeyName(cryptoKey, projectIdProvider);
-		DecryptResponse decryptResponse = client.decrypt(cryptoKeyName.toString(), ByteString.copyFromUtf8(encryptedText));
-		return decryptResponse.getPlaintext().toStringUtf8();
+
+		byte[] decodedBytes = decodeBase64(encryptedText);
+		ByteString encryptedByteString = ByteString.copyFrom(decodedBytes);
+
+		long crc32c = longCrc32c(encryptedByteString);
+
+		DecryptRequest request =
+				DecryptRequest.newBuilder()
+						.setName(cryptoKeyName.toString())
+						.setCiphertext(encryptedByteString)
+						.setCiphertextCrc32C(
+								Int64Value.newBuilder().setValue(crc32c).build())
+						.build();
+
+		DecryptResponse response = client.decrypt(request);
+		assertCrcMatch(response);
+		return response.getPlaintext().toStringUtf8();
 	}
 
 	private long longCrc32c(ByteString plaintextByteString) {
@@ -82,4 +101,24 @@ public class KMSTemplate implements KMSOperations {
 			throw new KMSException("Encryption: response from server corrupted");
 		}
 	}
+
+	private void assertCrcMatch(DecryptResponse response) {
+		long expected = response.getPlaintextCrc32C().getValue();
+		long received = longCrc32c(response.getPlaintext());
+		if(expected != received) {
+			throw new KMSException("Decryption : response from server corrupted");
+		}
+	}
+
+	private String encodeBase64(EncryptResponse response) {
+		byte[] bytes = response.getCiphertext().toByteArray();
+		byte[] encoded = Base64.getEncoder().encode(bytes);
+		return new String(encoded);
+	}
+
+	private byte[] decodeBase64(String encryptedText) {
+		byte[] bytes = encryptedText.getBytes();
+		return Base64.getDecoder().decode(bytes);
+	}
+
 }
