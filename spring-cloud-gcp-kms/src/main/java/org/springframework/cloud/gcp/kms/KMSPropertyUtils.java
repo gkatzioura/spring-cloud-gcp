@@ -16,8 +16,6 @@
 
 package org.springframework.cloud.gcp.kms;
 
-import java.io.IOException;
-
 import com.google.cloud.kms.v1.CryptoKeyName;
 
 import org.springframework.cloud.gcp.core.GcpProjectIdProvider;
@@ -47,18 +45,20 @@ final class KMSPropertyUtils {
 		String keyRingId;
 		String keyId;
 
-		if (tokens.length == 4) {
+		if (tokens.length == 3) {
 			// property is form "kms://<location-id>/<key-ring-id>/<key-id>"
-			locationId = tokens[1];
-			keyRingId = tokens[2];
-			keyId = tokens[3];
-		} else if (tokens.length == 4) {
+			locationId = tokens[0];
+			keyRingId = tokens[1];
+			keyId = tokens[2];
+		}
+		else if (tokens.length == 4) {
 			// property is form "kms://<project-id>/<location-id>/<key-ring-id>/<key-id>"
 			projectId = tokens[0];
 			locationId = tokens[1];
 			keyRingId = tokens[2];
 			keyId = tokens[3];
-		} else if (tokens.length == 7
+		}
+		else if (tokens.length == 7
 					&& tokens[0].equals("projects")
 					&& tokens[2].equals("locations")
 					&& tokens[4].equals("keyRings")
@@ -68,7 +68,8 @@ final class KMSPropertyUtils {
 			locationId = tokens[3];
 			keyRingId = tokens[5];
 			keyId = tokens[7];
-		} else {
+		}
+		else {
 			throw new IllegalArgumentException(
 					"Unrecognized format for specifying a GCP KMS : " + input);
 		}
