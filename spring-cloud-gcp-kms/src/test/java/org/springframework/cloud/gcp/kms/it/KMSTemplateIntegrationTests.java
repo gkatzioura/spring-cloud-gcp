@@ -59,7 +59,7 @@ public class KMSTemplateIntegrationTests {
 	}
 
 	@Test(expected = com.google.api.gax.rpc.InvalidArgumentException.class)
-	public void testEncryptDecryptMissmatch() {
+	public void testEncryptDecryptMissMatch() {
 		String kmsStr = "kms://project-name/europe-west2/spring-cloud-gcp/key-id";
 		String encryptedText = kmsTemplate.encrypt(kmsStr,"1234");
 
