@@ -50,7 +50,7 @@ public class KMSTemplateIntegrationTests {
 
 	@Test
 	public void testEncryptDecrypt() {
-		String kmsStr = "kms://project-name/europe-west2/spring-cloud-gcp/key-id";
+		String kmsStr = "kms://bigquerttest/europe-west2/spring-cloud-gcp/key-id";
 		String encryptedText = kmsTemplate.encrypt(kmsStr, "1234");
 
 		String decryptedText = kmsTemplate.decrypt(kmsStr, encryptedText);

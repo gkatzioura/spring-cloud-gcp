@@ -24,9 +24,7 @@ import com.google.cloud.kms.v1.DecryptResponse;
 import com.google.cloud.kms.v1.EncryptRequest;
 import com.google.cloud.kms.v1.EncryptResponse;
 import com.google.cloud.kms.v1.KeyManagementServiceClient;
-import com.google.common.hash.Hashing;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Int64Value;
 
 import org.springframework.cloud.gcp.core.GcpProjectIdProvider;
 
@@ -54,17 +52,12 @@ public class KMSTemplate implements KMSOperations {
 
 		ByteString plaintextByteString = ByteString.copyFromUtf8(plaintext);
 
-		long crc32c = longCrc32c(plaintextByteString);
-
 		EncryptRequest request = EncryptRequest.newBuilder()
 				.setName(cryptoKeyName.toString())
 				.setPlaintext(plaintextByteString)
-				.setPlaintextCrc32C(
-						Int64Value.newBuilder().setValue(crc32c).build())
 				.build();
 
 		EncryptResponse response = client.encrypt(request);
-		assertCrcMatch(response);
 
 		return encodeBase64(response);
 	}
@@ -75,41 +68,14 @@ public class KMSTemplate implements KMSOperations {
 		byte[] decodedBytes = decodeBase64(encryptedText);
 		ByteString encryptedByteString = ByteString.copyFrom(decodedBytes);
 
-		long crc32c = longCrc32c(encryptedByteString);
-
 		DecryptRequest request =
 				DecryptRequest.newBuilder()
 						.setName(cryptoKeyName.toString())
 						.setCiphertext(encryptedByteString)
-						.setCiphertextCrc32C(
-								Int64Value.newBuilder().setValue(crc32c).build())
 						.build();
 
 		DecryptResponse response = client.decrypt(request);
-		assertCrcMatch(response);
 		return response.getPlaintext().toStringUtf8();
-	}
-
-	private long longCrc32c(ByteString plaintextByteString) {
-		return Hashing.crc32c().hashBytes(plaintextByteString.toByteArray()).padToLong();
-	}
-
-	private void assertCrcMatch(EncryptResponse response) {
-		long expected = response.getCiphertextCrc32C().getValue();
-		long received = longCrc32c(response.getCiphertext());
-
-		if (expected != received) {
-			throw new KMSException("Encryption: response from server corrupted");
-		}
-	}
-
-	private void assertCrcMatch(DecryptResponse response) {
-		long expected = response.getPlaintextCrc32C().getValue();
-		long received = longCrc32c(response.getPlaintext());
-
-		if (expected != received) {
-			throw new KMSException("Decryption : response from server corrupted");
-		}
 	}
 
 	private String encodeBase64(EncryptResponse response) {
