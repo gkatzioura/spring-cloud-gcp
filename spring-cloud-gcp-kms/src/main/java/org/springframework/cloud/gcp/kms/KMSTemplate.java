@@ -97,7 +97,8 @@ public class KMSTemplate implements KMSOperations {
 	private void assertCrcMatch(EncryptResponse response) {
 		long expected = response.getCiphertextCrc32C().getValue();
 		long received = longCrc32c(response.getCiphertext());
-		if(expected != received) {
+
+		if (expected != received) {
 			throw new KMSException("Encryption: response from server corrupted");
 		}
 	}
@@ -105,7 +106,8 @@ public class KMSTemplate implements KMSOperations {
 	private void assertCrcMatch(DecryptResponse response) {
 		long expected = response.getPlaintextCrc32C().getValue();
 		long received = longCrc32c(response.getPlaintext());
-		if(expected != received) {
+
+		if (expected != received) {
 			throw new KMSException("Decryption : response from server corrupted");
 		}
 	}

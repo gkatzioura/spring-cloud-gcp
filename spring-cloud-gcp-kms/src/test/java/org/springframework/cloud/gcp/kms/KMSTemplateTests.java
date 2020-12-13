@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.springframework.cloud.gcp.kms;
 
 import java.util.Base64;
@@ -52,7 +68,7 @@ public class KMSTemplateTests {
 	public void testEncryptCorrupt() {
 		EncryptResponse encryptResponse = EncryptResponse.newBuilder()
 				.setCiphertext(ByteString.copyFromUtf8("invalid"))
-				.setCiphertextCrc32C(Int64Value.newBuilder().setValue(0l).build())
+				.setCiphertextCrc32C(Int64Value.newBuilder().setValue(0L).build())
 				.build();
 
 		when(this.client.encrypt(any(EncryptRequest.class))).thenReturn(encryptResponse);
@@ -65,7 +81,7 @@ public class KMSTemplateTests {
 	public void testDecryptCorrupt() {
 		DecryptResponse decryptResponse = DecryptResponse.newBuilder()
 				.setPlaintext(ByteString.copyFromUtf8("1234"))
-				.setPlaintextCrc32C(Int64Value.newBuilder().setValue(0l).build())
+				.setPlaintextCrc32C(Int64Value.newBuilder().setValue(0L).build())
 				.build();
 
 		when(this.client.decrypt(any(DecryptRequest.class))).thenReturn(decryptResponse);
@@ -110,7 +126,7 @@ public class KMSTemplateTests {
 	private DecryptResponse createDecryptResponse() {
 		return DecryptResponse.newBuilder()
 					.setPlaintext(ByteString.copyFromUtf8("1234"))
-					.setPlaintextCrc32C(Int64Value.newBuilder().setValue(4131058926l).build())
+					.setPlaintextCrc32C(Int64Value.newBuilder().setValue(4131058926L).build())
 					.build();
 	}
 
@@ -120,7 +136,7 @@ public class KMSTemplateTests {
 
 		return EncryptResponse.newBuilder()
 				.setCiphertext(ByteString.copyFrom(encryptedBytes))
-				.setCiphertextCrc32C(Int64Value.newBuilder().setValue(1171937405l).build())
+				.setCiphertextCrc32C(Int64Value.newBuilder().setValue(1171937405L).build())
 				.build();
 	}
 

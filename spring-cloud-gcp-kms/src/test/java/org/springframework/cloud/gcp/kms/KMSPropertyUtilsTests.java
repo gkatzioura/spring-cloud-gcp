@@ -17,7 +17,6 @@
 package org.springframework.cloud.gcp.kms;
 
 import com.google.cloud.kms.v1.CryptoKeyName;
-import com.google.cloud.kms.v1.CryptoKeyPathName;
 import org.junit.Test;
 
 import org.springframework.cloud.gcp.core.GcpProjectIdProvider;
